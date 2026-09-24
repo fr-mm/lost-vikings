@@ -10,7 +10,7 @@ editar, mover e excluir. Sem login.
 
 ## Usar
 
-- **Clique no mapa** → formulário: nome, descrição/lore, cor e seu nome (lembrado no navegador).
+- **Clique no mapa** → formulário: nome, descrição/lore e cor.
 - **Clique num marcador** → ver, editar ou excluir (exclusão pede um segundo clique).
 - **Arraste um marcador** pra mudar de lugar.
 - Botão **Marcadores** no topo abre a lista com busca.

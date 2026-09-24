@@ -2,7 +2,6 @@ import { createStore } from './storage.js';
 
 const IMAGE = { url: 'tree-map.png', width: 946, height: 939 };
 const COLORS = ['#e8c547', '#e05a47', '#4fb3d9', '#6fcf6f', '#b57be0', '#f08fc0', '#ffffff', '#ff9a3c'];
-const AUTHOR_KEY = 'lost-vikings:author';
 
 const $ = sel => document.querySelector(sel);
 const statusEl = $('#status');
@@ -32,13 +31,6 @@ function el(tag, props = {}, children = []) {
   return node;
 }
 
-function getAuthor() {
-  try { return localStorage.getItem(AUTHOR_KEY) || ''; } catch { return ''; }
-}
-function setAuthor(v) {
-  try { localStorage.setItem(AUTHOR_KEY, v); } catch {}
-}
-
 function makeIcon(color) {
   return L.divIcon({
     className: 'pin',
@@ -56,12 +48,27 @@ function showError(err) {
   statusEl.className = 'status error';
 }
 
+// Popups sempre abrem "pra cima" a partir do marcador (padrão do Leaflet, que
+// posiciona o popup com bottom:0 + transform — margin não afeta essa caixa).
+// Perto do topo isso empurraria o conteúdo pra debaixo do cabeçalho — como o
+// mapa nunca pode se mover (autoPan fica desligado em todo popup), corrige só
+// o popup, somando um translateY ao transform que o Leaflet já aplicou.
+function keepPopupOnScreen(popup) {
+  const el = popup?.getElement?.();
+  if (!el) return;
+  requestAnimationFrame(() => {
+    const mapTop = map.getContainer().getBoundingClientRect().top;
+    const popTop = el.getBoundingClientRect().top;
+    const overflow = mapTop - popTop;
+    if (overflow > 0) el.style.transform += ` translateY(${overflow + 10}px)`;
+  });
+}
+
 // ---------- Formulário (criar / editar) ----------
 function buildForm(initial, onSubmit, onCancel) {
   const form = $('#form-template').content.firstElementChild.cloneNode(true);
   form.title.value = initial.name || '';
   form.description.value = initial.description || '';
-  form.author.value = initial.author ?? getAuthor();
 
   let color = initial.color || COLORS[0];
   const swatches = form.querySelector('.swatches');
@@ -95,9 +102,7 @@ function buildForm(initial, onSubmit, onCancel) {
     e.preventDefault();
     const name = form.title.value.trim();
     if (!name) return;
-    const author = form.author.value.trim();
-    setAuthor(author);
-    onSubmit({ name, description: form.description.value.trim(), color, author });
+    onSubmit({ name, description: form.description.value.trim(), color });
   });
   form.querySelector('[data-action="cancel"]').onclick = onCancel;
   L.DomEvent.disableClickPropagation(form);
@@ -110,8 +115,11 @@ map.on('click', e => {
   // chegam aqui como se fossem no mapa — ignora.
   const target = e.originalEvent?.target;
   if (target && (!target.isConnected || target.closest('.leaflet-popup'))) return;
+  // Ignora cliques fora da imagem (na área de fundo ao redor dela, visível
+  // quando o mapa é mais largo/alto que a imagem quadrada)
   const { lat, lng } = e.latlng;
-  const popup = L.popup({ minWidth: 240 }).setLatLng(e.latlng);
+  if (lat < 0 || lat > IMAGE.height || lng < 0 || lng > IMAGE.width) return;
+  const popup = L.popup({ minWidth: 240, autoPan: false }).setLatLng(e.latlng);
   const form = buildForm(
     {},
     data => {
@@ -121,6 +129,7 @@ map.on('click', e => {
     () => map.closePopup(popup),
   );
   popup.setContent(form).openOn(map);
+  keepPopupOnScreen(popup);
   setTimeout(() => form.title.focus(), 0);
 });
 
@@ -129,10 +138,7 @@ function viewContent(m) {
   const box = el('div', { className: 'marker-view' });
   box.append(el('h3', { textContent: m.name, style: `color:${m.color}` }));
   if (m.description) box.append(el('p', { className: 'desc', textContent: m.description }));
-  const meta = [];
-  if (m.author) meta.push(`por ${m.author}`);
-  if (m.updatedAt) meta.push(new Date(m.updatedAt).toLocaleString('pt-BR'));
-  if (meta.length) box.append(el('p', { className: 'meta', textContent: meta.join(' · ') }));
+  if (m.updatedAt) box.append(el('p', { className: 'meta', textContent: new Date(m.updatedAt).toLocaleString('pt-BR') }));
 
   const actions = el('div', { className: 'actions' });
   const editBtn = el('button', { className: 'btn', textContent: 'Editar', type: 'button' });
@@ -145,8 +151,9 @@ function viewContent(m) {
     layer.setPopupContent(buildForm(
       m,
       data => { layer.closePopup(); store.update(m.id, data).catch(showError); },
-      () => layer.setPopupContent(viewContent(m)),
+      () => { layer.setPopupContent(viewContent(m)); keepPopupOnScreen(layer.getPopup()); },
     ));
+    keepPopupOnScreen(layer.getPopup());
   };
   delBtn.onclick = () => {
     if (delBtn.dataset.confirm) {
@@ -171,11 +178,13 @@ function render(list) {
     let layer = layers.get(m.id);
     if (!layer) {
       layer = L.marker([m.lat, m.lng], { draggable: true, autoPan: true });
-      layer.bindPopup('', { minWidth: 240 });
+      // autoPan: false — o mapa nunca se move ao abrir um popup (fica sempre parado)
+      layer.bindPopup('', { minWidth: 240, autoPan: false });
       // Abrir o popup sempre mostra a versão mais recente, em modo visualização
       layer.on('popupopen', () => {
         const cur = markers.find(x => x.id === m.id);
         if (cur) layer.setPopupContent(viewContent(cur));
+        keepPopupOnScreen(layer.getPopup());
       });
       layer.on('dragend', () => {
         const { lat, lng } = layer.getLatLng();
@@ -200,7 +209,10 @@ function render(list) {
         { permanent: true, direction: 'right', className: 'pin-label' },
       );
     }
-    if (!editing) layer.setPopupContent(viewContent(m));
+    if (!editing) {
+      layer.setPopupContent(viewContent(m));
+      if (layer.isPopupOpen()) keepPopupOnScreen(layer.getPopup());
+    }
   }
 
   for (const [id, layer] of layers) {

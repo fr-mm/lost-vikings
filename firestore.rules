@@ -10,10 +10,9 @@ service cloud.firestore {
     }
 
     function validMarker(d) {
-      return d.keys().hasOnly(['name', 'description', 'color', 'author', 'lat', 'lng', 'createdAt', 'updatedAt'])
+      return d.keys().hasOnly(['name', 'description', 'color', 'lat', 'lng', 'createdAt', 'updatedAt'])
         && d.name is string && d.name.size() > 0 && d.name.size() <= 80
         && d.get('description', '') is string && d.get('description', '').size() <= 2000
-        && d.get('author', '') is string && d.get('author', '').size() <= 40
         && d.color is string && d.color.size() <= 9
         && d.lat is number && d.lng is number;
     }
