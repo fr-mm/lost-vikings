@@ -1,0 +1,153 @@
+:root {
+  --bg: #0d0f17;
+  --panel: #171a26;
+  --border: #2c3145;
+  --text: #e9e4d8;
+  --muted: #8d8a82;
+  --gold: #d9b45a;
+  --danger: #d0503e;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body { display: flex; flex-direction: column; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+.topbar h1 {
+  margin: 0;
+  font: 700 20px "Cinzel", Georgia, serif;
+  color: var(--gold);
+  letter-spacing: .04em;
+}
+.subtitle { color: var(--muted); font-family: "Cinzel", Georgia, serif; }
+.status { margin-left: auto; font-size: 12px; color: var(--muted); }
+.status.online { color: #6fcf6f; }
+.status.local { color: #e8c547; }
+.status.error { color: var(--danger); }
+
+.layout { flex: 1; display: flex; min-height: 0; }
+#map { flex: 1; background: var(--bg); }
+
+.sidebar {
+  width: 260px;
+  max-width: 45vw;
+  border-left: 1px solid var(--border);
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+}
+.sidebar[hidden] { display: none; }
+.sidebar input {
+  margin: 10px;
+  padding: 7px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+#marker-list { list-style: none; margin: 0; padding: 0 0 10px; overflow-y: auto; }
+#marker-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+#marker-list li:hover { background: #22263a; }
+.dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--c); flex: none;
+}
+
+.hint {
+  margin: 0;
+  padding: 6px 16px;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+}
+
+/* Botões */
+.btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--gold);
+  background: var(--gold);
+  color: #1a1408;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn.ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+
+/* Marcadores */
+.pin span {
+  display: block;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--c);
+  border: 2px solid #111;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.6), 0 2px 6px rgba(0,0,0,.6);
+}
+.leaflet-tooltip.pin-label {
+  background: rgba(10, 12, 20, .78);
+  border: none;
+  box-shadow: none;
+  padding: 1px 6px;
+  font: 700 13px "Cinzel", Georgia, serif;
+  text-shadow: 0 1px 2px #000;
+}
+.leaflet-tooltip.pin-label::before { display: none; }
+
+/* Popups */
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.leaflet-popup-content { margin: 12px 14px; }
+.leaflet-container a.leaflet-popup-close-button { color: var(--muted); }
+
+.marker-form { display: flex; flex-direction: column; gap: 8px; }
+.marker-form label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); }
+.marker-form input:not([type=color]), .marker-form textarea {
+  padding: 6px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+.swatches { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.swatch {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--c);
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+.swatch.selected { border-color: #fff; box-shadow: 0 0 0 2px #000 inset; }
+.swatch-custom { width: 28px; height: 24px; padding: 0; border: none; background: none; cursor: pointer; }
+.actions { display: flex; gap: 8px; margin-top: 4px; }
+
+.marker-view h3 { margin: 0 0 6px; font: 700 16px "Cinzel", Georgia, serif; }
+.marker-view .desc { margin: 0 0 6px; white-space: pre-wrap; }
+.marker-view .meta { margin: 0 0 8px; font-size: 11px; color: var(--muted); }

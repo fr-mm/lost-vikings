@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lost Vikings — Mapa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Lost Vikings</h1>
+    <span class="subtitle">Mapa da Yggdrasil</span>
+    <span id="status" class="status"></span>
+    <button id="toggle-list" class="btn ghost">Marcadores (<span id="count">0</span>)</button>
+  </header>
+
+  <div class="layout">
+    <div id="map"></div>
+    <aside id="sidebar" class="sidebar" hidden>
+      <input id="search" type="search" placeholder="Buscar marcador…">
+      <ul id="marker-list"></ul>
+    </aside>
+  </div>
+
+  <p class="hint">Clique no mapa para adicionar um marcador. Arraste um marcador para movê-lo.</p>
+
+  <template id="form-template">
+    <form class="marker-form">
+      <label>Nome
+        <input name="title" required maxlength="80" placeholder="Ex.: Cidade X">
+      </label>
+      <label>Descrição / lore
+        <textarea name="description" rows="3" maxlength="2000" placeholder="Opcional"></textarea>
+      </label>
+      <label>Cor</label>
+      <div class="swatches"></div>
+      <label>Seu nome
+        <input name="author" maxlength="40" placeholder="Opcional">
+      </label>
+      <div class="actions">
+        <button type="submit" class="btn">Salvar</button>
+        <button type="button" class="btn ghost" data-action="cancel">Cancelar</button>
+      </div>
+    </form>
+  </template>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
