@@ -139,6 +139,16 @@ function buildForm(initial, onSubmit, onCancel) {
   swatches.querySelectorAll('.swatch').forEach((b, i) => { b.dataset.color = COLORS[i]; });
   select(color);
 
+  // Enter no campo Nome soltaria o formulário (submit implícito de <input>
+  // dentro de <form>) antes da pessoa preencher a descrição — aí, ao tentar
+  // continuar, ela cria sem querer um segundo ponto. Em vez de submeter,
+  // Enter aqui só passa o foco pra descrição.
+  form.title.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    form.description.focus();
+  });
+
   form.addEventListener('submit', e => {
     e.preventDefault();
     const name = form.title.value.trim();
