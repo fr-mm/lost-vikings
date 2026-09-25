@@ -53,6 +53,17 @@ normal nesta pasta (o `.firebaserc` já aponta pro projeto certo).
 Pra atualizar o site: só commitar e dar `git push` — o GitHub Pages já está ativo
 (Settings → Pages → branch `master` / `/ (root)`) e publica sozinho a cada push.
 
+## Versão e changelog
+
+A versão atual (`version.js`, mostrada no canto do cabeçalho) segue semver:
+correção/ajuste sobe o patch (x.x.**X**), feature nova sobe o minor (x.**X**.0,
+zera o patch). Toda mudança tem uma entrada em `changelog.html` linkada ao
+commit do GitHub que a trouxe — como o link precisa do hash do commit, o
+fluxo normal é: 1) fazer a mudança + subir a versão em `version.js` num
+commit, 2) pegar o hash desse commit (`git log -1 --format=%H`) e escrever a
+entrada do changelog linkando pra ele, geralmente num segundo commit pequeno
+logo em seguida.
+
 ## Estrutura
 
 | Arquivo | O quê |
@@ -63,6 +74,8 @@ Pra atualizar o site: só commitar e dar `git push` — o GitHub Pages já está
 | `firebase-config.js` | Config do projeto Firebase |
 | `firestore.rules` | Regras de segurança do Firestore |
 | `firebase.json` / `.firebaserc` | Config do Firebase CLI (aponta pro projeto `lost-vikings-map`) |
+| `version.js` | Versão atual, mostrada no cabeçalho |
+| `changelog.html` | Histórico de versões, cada uma linkada a um commit |
 | `tree-map.png` | Sombra da Yggdrasil sobre o contorno do mapa (946×939) |
 
 Pra trocar a imagem por outra de tamanho diferente, ajuste `IMAGE` no topo de `app.js`.

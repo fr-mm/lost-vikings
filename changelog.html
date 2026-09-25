@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lost Vikings — Changelog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Lost Vikings</h1>
+    <span class="subtitle">Changelog</span>
+    <a class="version" href="index.html">← voltar pro mapa</a>
+  </header>
+
+  <main class="changelog">
+    <p class="changelog-intro">
+      Histórico de mudanças do mapa. Correção/ajuste sobe o número de patch
+      (x.x.<strong>X</strong>), feature nova sobe o minor (x.<strong>X</strong>.0).
+      Cada versão linka pro commit no GitHub que trouxe aquela mudança.
+    </p>
+
+    <article class="release">
+      <div class="release-header">
+        <span class="release-version">v1.0.0</span>
+        <span class="release-date">25/09/2026</span>
+        <a class="release-commit" href="https://github.com/fr-mm/lost-vikings/commit/958df74fa52aa0f05a853b047593863a4e89ffa1" target="_blank" rel="noopener">958df74</a>
+      </div>
+      <h2>Lançamento inicial</h2>
+      <ul class="release-notes">
+        <li>Mapa da Yggdrasil com marcadores coloridos: criar, editar, arrastar e excluir.</li>
+        <li>Dados compartilhados em tempo real via Firebase Firestore (sem login — qualquer um com o link edita).</li>
+        <li>Clique só funciona sobre a imagem, não na área ao redor dela.</li>
+        <li>Popup do marcador nunca move o mapa — o fundo fica sempre parado, mesmo perto do topo da página.</li>
+        <li>Ctrl+Z desfaz criar, arrastar ou excluir (local, até 50 ações).</li>
+        <li>Corrigido: Enter no campo Nome não submete mais o formulário sem querer.</li>
+        <li>Marcador nasce travado — só dá pra arrastar depois de selecioná-lo com um clique (anel dourado avisa que está liberado).</li>
+      </ul>
+    </article>
+  </main>
+
+  <script type="module">
+    import { VERSION } from './version.js';
+    document.title = `Lost Vikings — Changelog (v${VERSION})`;
+  </script>
+</body>
+</html>

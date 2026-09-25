@@ -1,10 +1,12 @@
 import { createStore } from './storage.js';
+import { VERSION } from './version.js';
 
 const IMAGE = { url: 'tree-map.png', width: 946, height: 939 };
 const COLORS = ['#e8c547', '#e05a47', '#4fb3d9', '#6fcf6f', '#b57be0', '#f08fc0', '#ffffff', '#ff9a3c'];
 
 const $ = sel => document.querySelector(sel);
 const statusEl = $('#status');
+$('#version').textContent = `v${VERSION}`;
 
 // ---------- Mapa ----------
 const bounds = [[0, 0], [IMAGE.height, IMAGE.width]];
