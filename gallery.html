@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lost Vikings — Galeria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Lost Vikings</h1>
+    <span class="subtitle">Galeria de fotos</span>
+    <a class="version" href="index.html">Mapa</a>
+    <a id="version" class="version" href="changelog.html" title="Ver histórico de mudanças"></a>
+    <span id="status" class="status"></span>
+  </header>
+
+  <main class="gallery-page">
+    <form id="upload-form" class="upload-bar">
+      <input id="file-input" type="file" accept="image/*" multiple required>
+      <input id="caption-input" type="text" maxlength="140" placeholder="Legenda (opcional)">
+      <button type="submit" class="btn">Enviar</button>
+    </form>
+    <p class="hint">
+      <span id="gallery-count"></span> — limitamos o total pra continuar hospedando de graça;
+      se batermos no limite, a gente vê como expandir.
+    </p>
+    <div id="photo-grid" class="photo-grid"></div>
+  </main>
+
+  <div id="lightbox" class="lightbox" hidden>
+    <button id="lightbox-close" class="lightbox-close" type="button" aria-label="Fechar">×</button>
+    <img id="lightbox-img" alt="">
+    <p id="lightbox-caption" class="lightbox-caption"></p>
+    <button id="lightbox-delete" class="btn danger" type="button">Excluir</button>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script type="module" src="gallery.js"></script>
+</body>
+</html>

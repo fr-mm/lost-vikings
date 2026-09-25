@@ -218,3 +218,85 @@ body { display: flex; flex-direction: column; }
 .release h2 { margin: 4px 0 10px; font: 700 16px system-ui, sans-serif; }
 .release-notes { margin: 0; padding-left: 20px; }
 .release-notes li { margin-bottom: 4px; }
+
+/* Galeria */
+.gallery-page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.upload-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.upload-bar input[type=file] { color: var(--text); max-width: 100%; }
+.upload-bar input[type=text] {
+  flex: 1;
+  min-width: 160px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+}
+#gallery-count { color: var(--gold); font-weight: 600; }
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.photo-card {
+  position: relative;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--panel);
+  cursor: pointer;
+  aspect-ratio: 1;
+  display: block;
+}
+.photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-caption {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 4px 8px;
+  font-size: 11px;
+  background: linear-gradient(transparent, rgba(0,0,0,.75));
+  color: #fff;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, .92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  z-index: 3000;
+}
+/* [hidden] sozinho perde pro display:flex acima (mesma especificidade, CSS de
+   autor vence o padrão do navegador) — sem isso o lightbox fica clicável
+   mesmo escondido. */
+.lightbox[hidden] { display: none; }
+.lightbox img { max-width: min(90vw, 900px); max-height: 72vh; border-radius: 8px; object-fit: contain; }
+.lightbox-caption { color: var(--text); max-width: 80vw; text-align: center; }
+.lightbox-close {
+  position: absolute;
+  top: 16px; right: 20px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
