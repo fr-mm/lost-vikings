@@ -105,6 +105,13 @@ body { display: flex; flex-direction: column; }
   background: var(--c);
   border: 2px solid #111;
   box-shadow: 0 0 0 2px rgba(255,255,255,.6), 0 2px 6px rgba(0,0,0,.6);
+  cursor: pointer;
+}
+/* Travado por padrão — só arrasta depois de selecionar (clicar = abrir o
+   popup), daí ganha esse anel avisando que já pode mover. */
+.pin.selected span {
+  box-shadow: 0 0 0 2px rgba(255,255,255,.9), 0 0 0 5px var(--gold), 0 2px 8px rgba(0,0,0,.7);
+  cursor: grab;
 }
 .leaflet-tooltip.pin-label {
   background: rgba(10, 12, 20, .78);

@@ -12,7 +12,9 @@ editar, mover e excluir. Sem login.
 
 - **Clique no mapa** → formulário: nome, descrição/lore e cor.
 - **Clique num marcador** → ver, editar ou excluir (exclusão pede um segundo clique).
-- **Arraste um marcador** pra mudar de lugar.
+- Marcadores ficam **travados** por padrão. **Clique num marcador** pra selecioná-lo
+  (ganha um anel dourado) — só aí dá pra arrastar pra mudar de lugar. Clicar em
+  outro lugar destrava de novo. Evita mover um ponto sem querer.
 - **Ctrl+Z** desfaz sua última ação (criar, arrastar ou excluir), inclusive várias
   vezes em sequência. É só local — não desfaz o que outra pessoa fez, e não
   sobrevive a um recarregar da página.

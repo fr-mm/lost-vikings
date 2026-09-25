@@ -23,6 +23,7 @@ map.fitBounds(bounds);
 const layers = new Map(); // id -> L.Marker
 let markers = [];
 let store;
+let selectedId = null;
 
 // ---------- Helpers ----------
 function el(tag, props = {}, children = []) {
@@ -46,6 +47,25 @@ function showError(err) {
   console.error(err);
   statusEl.textContent = 'Erro ao salvar — veja o console';
   statusEl.className = 'status error';
+}
+
+// Marcador começa travado (não dá pra arrastar sem querer). Um clique nele
+// seleciona (mostra o anel, libera o arrasto); clicar em outro marcador ou
+// no mapa vazio troca a seleção e trava o anterior de novo.
+// Independente do popup de propósito: o Leaflet fecha o popup sozinho assim
+// que um arrasto começa (movestart), e se a seleção dependesse disso o
+// dragging.disable() dispararia no meio do próprio arrasto que ele liberou.
+function setLocked(layer, locked) {
+  if (locked) layer.dragging.disable(); else layer.dragging.enable();
+  layer.getElement()?.classList.toggle('selected', !locked);
+}
+function selectMarker(id) {
+  if (selectedId === id) return;
+  const prev = selectedId && layers.get(selectedId);
+  if (prev) setLocked(prev, true);
+  selectedId = id;
+  const cur = id && layers.get(id);
+  if (cur) setLocked(cur, false);
 }
 
 let toastTimer;
@@ -166,6 +186,8 @@ map.on('click', e => {
   // chegam aqui como se fossem no mapa — ignora.
   const target = e.originalEvent?.target;
   if (target && (!target.isConnected || target.closest('.leaflet-popup'))) return;
+  // Clique fora de qualquer marcador destrava o que estava selecionado
+  selectMarker(null);
   // Ignora cliques fora da imagem (na área de fundo ao redor dela, visível
   // quando o mapa é mais largo/alto que a imagem quadrada)
   const { lat, lng } = e.latlng;
@@ -234,9 +256,15 @@ function render(list) {
     seen.add(m.id);
     let layer = layers.get(m.id);
     if (!layer) {
-      layer = L.marker([m.lat, m.lng], { draggable: true, autoPan: true });
+      // draggable: false — trava por padrão; só libera quando selecionado (ver selectMarker)
+      layer = L.marker([m.lat, m.lng], { draggable: false, autoPan: true });
       // autoPan: false — o mapa nunca se move ao abrir um popup (fica sempre parado)
       layer.bindPopup('', { minWidth: 240, autoPan: false });
+      // Clicar no marcador seleciona (libera arrasto) — separado do popup:
+      // o Leaflet fecha o popup sozinho ao começar um arrasto (movestart), e
+      // se a trava dependesse disso o dragging.disable() dispararia no meio
+      // do próprio arrasto que acabou de liberar.
+      layer.on('click', () => selectMarker(m.id));
       // Abrir o popup sempre mostra a versão mais recente, em modo visualização
       layer.on('popupopen', () => {
         const cur = markers.find(x => x.id === m.id);
@@ -274,6 +302,9 @@ function render(list) {
         el('span', { textContent: m.name, style: `color:${m.color}` }),
         { permanent: true, direction: 'right', className: 'pin-label' },
       );
+      // O ícone é um elemento DOM novo — reaplica o anel/destravamento se
+      // este marcador está selecionado.
+      setLocked(layer, selectedId !== m.id);
     }
     if (!editing) {
       layer.setPopupContent(viewContent(m));
@@ -282,7 +313,11 @@ function render(list) {
   }
 
   for (const [id, layer] of layers) {
-    if (!seen.has(id)) { layer.remove(); layers.delete(id); }
+    if (!seen.has(id)) {
+      layer.remove();
+      layers.delete(id);
+      if (selectedId === id) selectedId = null;
+    }
   }
 
   $('#count').textContent = list.length;
@@ -298,6 +333,7 @@ function renderList() {
   $('#marker-list').replaceChildren(...items.map(m => el('li', {
     onclick: () => {
       map.flyTo([m.lat, m.lng], Math.max(map.getZoom(), 1));
+      selectMarker(m.id);
       layers.get(m.id)?.openPopup();
     },
   }, [el('span', { className: 'dot', style: `--c:${m.color}` }), m.name])));
