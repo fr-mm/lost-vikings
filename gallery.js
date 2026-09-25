@@ -93,9 +93,19 @@ function closeLightbox() {
   lightbox.hidden = true;
   current = null;
 }
+function showAdjacent(dir) {
+  const idx = photos.findIndex(p => p.id === current.id);
+  if (idx === -1) return;
+  openLightbox(photos[(idx + dir + photos.length) % photos.length]);
+}
 $('#lightbox-close').addEventListener('click', closeLightbox);
 lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !lightbox.hidden) closeLightbox(); });
+document.addEventListener('keydown', e => {
+  if (lightbox.hidden) return;
+  if (e.key === 'Escape') closeLightbox();
+  else if (e.key === 'ArrowLeft') showAdjacent(-1);
+  else if (e.key === 'ArrowRight') showAdjacent(1);
+});
 
 $('#lightbox-delete').addEventListener('click', async () => {
   const delBtn = $('#lightbox-delete');
