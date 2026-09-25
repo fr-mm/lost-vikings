@@ -48,6 +48,47 @@ function showError(err) {
   statusEl.className = 'status error';
 }
 
+let toastTimer;
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.hidden = true; }, 1800);
+}
+
+// ---------- Desfazer (Ctrl+Z) ----------
+// Só desfaz ações feitas por você nesta aba (criar, arrastar, excluir) — não
+// é um histórico compartilhado, fica só na memória enquanto a página está aberta.
+const UNDO_LIMIT = 50;
+const undoStack = [];
+function pushUndo(action) {
+  undoStack.push(action);
+  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+}
+function undoLast() {
+  const action = undoStack.pop();
+  if (!action) { toast('Nada para desfazer'); return; }
+  if (action.type === 'create') {
+    store.remove(action.id).catch(showError);
+    toast('Criação desfeita');
+  } else if (action.type === 'delete') {
+    store.add(action.data).catch(showError);
+    toast('Exclusão desfeita');
+  } else if (action.type === 'move') {
+    store.update(action.id, action.from).catch(showError);
+    toast('Movimento desfeito');
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.key.toLowerCase() !== 'z' || !(e.ctrlKey || e.metaKey) || e.shiftKey) return;
+  const t = e.target;
+  // Dentro de um campo de texto, deixa o undo nativo do navegador funcionar
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+  e.preventDefault();
+  undoLast();
+});
+
 // Popups sempre abrem "pra cima" a partir do marcador (padrão do Leaflet, que
 // posiciona o popup com bottom:0 + transform — margin não afeta essa caixa).
 // Perto do topo isso empurraria o conteúdo pra debaixo do cabeçalho — como o
@@ -124,7 +165,9 @@ map.on('click', e => {
     {},
     data => {
       map.closePopup(popup);
-      store.add({ ...data, lat, lng }).catch(showError);
+      store.add({ ...data, lat, lng })
+        .then(id => pushUndo({ type: 'create', id }))
+        .catch(showError);
     },
     () => map.closePopup(popup),
   );
@@ -158,6 +201,10 @@ function viewContent(m) {
   delBtn.onclick = () => {
     if (delBtn.dataset.confirm) {
       layer.closePopup();
+      pushUndo({
+        type: 'delete',
+        data: { name: m.name, description: m.description || '', color: m.color, lat: m.lat, lng: m.lng },
+      });
       store.remove(m.id).catch(showError);
     } else {
       delBtn.dataset.confirm = '1';
@@ -186,8 +233,15 @@ function render(list) {
         if (cur) layer.setPopupContent(viewContent(cur));
         keepPopupOnScreen(layer.getPopup());
       });
-      layer.on('dragend', () => {
+      layer.on('dragstart', () => {
         const { lat, lng } = layer.getLatLng();
+        layer._dragFrom = { lat, lng };
+        layer._dragging = true;
+      });
+      layer.on('dragend', () => {
+        layer._dragging = false;
+        const { lat, lng } = layer.getLatLng();
+        if (layer._dragFrom) pushUndo({ type: 'move', id: m.id, from: layer._dragFrom });
         store.update(m.id, { lat, lng }).catch(showError);
       });
       layer.addTo(map);
@@ -195,9 +249,11 @@ function render(list) {
     }
     // Não sobrescreve o popup se alguém estiver editando este marcador agora
     const editing = layer.isPopupOpen() && layer.getPopup().getContent()?.tagName === 'FORM';
-    const dragging = layer.dragging?.moved();
+    // _dragging (flag própria, não layer.dragging.moved() — o Leaflet nunca
+    // reseta esse .moved() depois do primeiro arrasto, então ficaria bloqueando
+    // pra sempre a sincronização de posição vinda do desfazer ou de outro usuário)
     const cur = layer.getLatLng();
-    if (!dragging && (cur.lat !== m.lat || cur.lng !== m.lng)) layer.setLatLng([m.lat, m.lng]);
+    if (!layer._dragging && (cur.lat !== m.lat || cur.lng !== m.lng)) layer.setLatLng([m.lat, m.lng]);
     // Só recria ícone/rótulo quando nome ou cor mudam (recriar à toa troca o
     // elemento do DOM debaixo do mouse e atrapalha cliques/arrastes)
     const look = `${m.color}|${m.name}`;

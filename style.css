@@ -151,3 +151,20 @@ body { display: flex; flex-direction: column; }
 .marker-view h3 { margin: 0 0 6px; font: 700 16px "Cinzel", Georgia, serif; }
 .marker-view .desc { margin: 0 0 6px; white-space: pre-wrap; }
 .marker-view .meta { margin: 0 0 8px; font-size: 11px; color: var(--muted); }
+
+/* Aviso de "desfeito" */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 44px;
+  transform: translateX(-50%);
+  background: var(--panel);
+  border: 1px solid var(--gold);
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.5);
+  z-index: 2000;
+  pointer-events: none;
+}

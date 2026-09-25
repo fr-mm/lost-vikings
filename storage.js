@@ -28,7 +28,7 @@ async function createFirestoreStore() {
         onError,
       );
     },
-    add: data => fs.addDoc(col, { ...data, createdAt: Date.now(), updatedAt: Date.now() }),
+    add: async data => (await fs.addDoc(col, { ...data, createdAt: Date.now(), updatedAt: Date.now() })).id,
     update: (id, patch) => fs.updateDoc(fs.doc(db, COLLECTION, id), { ...patch, updatedAt: Date.now() }),
     remove: id => fs.deleteDoc(fs.doc(db, COLLECTION, id)),
   };
@@ -56,6 +56,7 @@ function createLocalStore() {
     async add(data) {
       const id = crypto.randomUUID();
       write([...read(), { id, ...data, createdAt: Date.now(), updatedAt: Date.now() }]);
+      return id;
     },
     async update(id, patch) {
       write(read().map(m => (m.id === id ? { ...m, ...patch, updatedAt: Date.now() } : m)));
